@@ -17,8 +17,8 @@ go there to get the public and private keys needed to make this example work
  You need to create it for your own version of this application.  To do so, make
  a new tab in Arduino, call it passwords.h, and include the following variables and constants:
 
- #define APIKEY        "foo"                  // replace your sparkfun secret key here
- #define FEEDID        "0000"                  // replace your sparkfun public key here
+ #define PUBLICKEY        "foo"                 // replace your sparkfun public key here
+ #define PRIVATEKEY       "0000"                // replace your sparkfun secret key here
  */
 
 
@@ -32,7 +32,11 @@ void setup() {
   Bridge.begin();
   Console.begin();
 
+  //***************************************************************//
+  // comment out this line if you want Yun to run w/o console open:
   while (!Console);   // wait for Network Serial to open
+  //***************************************************************//
+
   Console.println("data.sparkfun client");
 
   // Do a first update immediately
@@ -56,10 +60,10 @@ void loop() {
 
 void updateData() {
   // convert the readings to a String to send it:
-    dataString = "pressure=";
-  dataString += random(5) + 100;
-  dataString += "&temperature=";
-  dataString += random(10) + 20;
+  dataString = "humidity=";
+  dataString += random(100) + 100; //this is the data from my sensor
+  dataString += "&temp=";
+  dataString += random(20) + 20;
   // add pressure:
 
 }
@@ -67,11 +71,11 @@ void updateData() {
 // this method makes a HTTP connection to the server:
 void sendData() {
   // form the string for the API header parameter:
- // form the string for the URL parameter:
+  // form the string for the URL parameter:
   String url = "http://data.sparkfun.com/input/";
-  url += FEEDID;
+  url += PUBLICKEY;
   url += "?private_key=";
-  url += APIKEY;
+  url += PRIVATEKEY;
   url += "&";
   url += dataString;
 
@@ -91,10 +95,6 @@ void sendData() {
     Console.print(c);
   }
   Console.flush();
-
-
 }
-
-
 
 
