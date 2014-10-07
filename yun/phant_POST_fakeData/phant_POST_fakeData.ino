@@ -7,7 +7,6 @@ go there to get the public and private keys needed to make this example work
 
 
 // include all Libraries needed:
-//#include <Process.h>
 #include <Bridge.h>
 #include <HttpClient.h>
 #include "passwords.h"      // contains my passwords, see below
@@ -23,9 +22,15 @@ go there to get the public and private keys needed to make this example work
 
 
 // set up net client info:
-const unsigned long postingInterval = 10000;  //delay between updates to xively.com
+unsigned long postingInterval = 25000;  //delay between updates
 unsigned long lastRequest = 0;      // when you last made a request
+unsigned long currTime = 0;
 String dataString = "";
+int sineVal;
+int sineMod = 20;
+int squareVal;
+unsigned long lastSquare = 0;
+int rampVal;
 
 void setup() {
   // start serial port:
@@ -34,7 +39,7 @@ void setup() {
 
   //***************************************************************//
   // comment out this line if you want Yun to run w/o console open:
-  while (!Console);   // wait for Network Serial to open
+  //while (!Console);   // wait for Network Serial to open
   //***************************************************************//
 
   Console.println("data.sparkfun client");
@@ -47,25 +52,36 @@ void setup() {
 
 void loop() {
   // get a timestamp so you can calculate reading and sending intervals:
-  long now = millis();
+  currTime = millis();
 
   // if the sending interval has passed since your
   // last connection, then connect again and send data:
-  if (now - lastRequest >= postingInterval) {
-    updateData();
-    sendData();
-    lastRequest = now;
+  if (currTime - lastRequest >= postingInterval) {
+      updateData();
+      sendData();
+      lastRequest = currTime;
   }
 }
 
 void updateData() {
-  // convert the readings to a String to send it:
-  dataString = "humidity=";
-  dataString += random(100) + 100; //this is the data from my sensor
-  dataString += "&temp=";
-  dataString += random(20) + 20;
-  // add pressure:
+  //sine wave:
+  sineVal += sineMod;
+  if(sineVal > 255 || sineVal <= 0) sineMod *= -1;
 
+  if(squareVal == 255){
+    squareVal = 0;
+  } else squareVal = 255;
+  
+  rampVal += abs(sineMod);
+  if(rampVal > 260) rampVal = 0;
+  
+  // convert the readings to a String to send it:
+  dataString = "sine=";
+  dataString += sineVal;
+  dataString += "&square=";
+  dataString += squareVal;
+  dataString += "&ramp=";
+  dataString += rampVal;
 }
 
 // this method makes a HTTP connection to the server:
@@ -82,7 +98,6 @@ void sendData() {
   // Send the HTTP GET request
 
   HttpClient client;
-  //Process xively;
   Console.print("\n\nSending data... ");
   Console.println(url);
   client.get(url);
