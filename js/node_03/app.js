@@ -15,7 +15,15 @@ var port = 8080; //select a port
 //try adding your own html and css files to the public folder
 
 app.use(express.static(__dirname+'/public'));
-
+app.get("/thisismyroute",function(req,res){
+	console.log(JSON.stringify(req.query));
+	res.send(req.query);
+// 	if(req.query.name == "balls"){
+// 		res.send(400);
+// 	}else{
+// 		res.send(200);
+// 	}
+})
 //start listening on our port of 8080
 //visit localhost:8080/your_file.ext to view your work
 app.listen(port);

@@ -4,7 +4,7 @@ net = require('net');
 // Keep track of the chat clients
 var clients = [];
  
-// Start a TCP Server
+//Start a TCP Server
 net.createServer(function (socket) {
  
   // Identify this client
@@ -19,7 +19,14 @@ net.createServer(function (socket) {
  
   // Handle incoming messages from clients.
   socket.on('data', function (data) {
-    broadcast(socket.name + "> " + data, socket);
+  	//var filterSting;
+  	console.log(data);
+  	if(JSON.stringify(data) === "poop"){
+  		data = "****";
+  		broadcast(socket.name + "> " + data, socket);
+  	}else{
+  		broadcast(socket.name + "> " + data, socket);
+  	}
   });
  
   // Remove the client from the list when it leaves
@@ -40,6 +47,6 @@ net.createServer(function (socket) {
   }
  
 }).listen(5000);
- 
+
 // Put a friendly message on the terminal of the server.
 console.log("Chat server running at port 5000\n");
