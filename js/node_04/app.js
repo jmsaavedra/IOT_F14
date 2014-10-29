@@ -52,13 +52,21 @@ app.get("/input",function(req,res){ // /input/?name=myName&data=myData
 	}
 })
 app.get("/output",function(req,res){
-	console.log(JSON.stringify(req.query));
-	res.send(req.query);
-// 	if(req.query.name == "balls"){
-// 		res.send(400);
-// 	}else{
-// 		res.send(200);
-// 	}
+	console.log("OUTPUT GET: "+JSON.stringify(req.query));
+  if(req.query.name != null){
+    //make sure this name is real
+    queryDataForName(req.query.name,function(e,o){
+      if(!e && o){
+        res.send(JSON.stringify(o));
+      }else{
+        res.send(400);
+      }
+    })
+  }else{
+    console.log("OUTPUT GET NO NAME PASSED");
+    res.send(400);
+  }
+
 })
 //start listening on our port of 8080
 //visit localhost:8080/your_file.ext to view your work
@@ -76,8 +84,18 @@ function queryDBForName(sentName,callback){
 		}
 	})
 }
+function queryDataForName(sentName,callback){
+  data.find({name:sentName}).toArray(function(e,o){
+    if(!e){
+      console.log("GOT DATA FOR: "+sentName + " "+JSON.stringify(o));
+      callback(null,o);
+    }else{
+      console.log("ERROR FINDING DATA FOR: "+sentName);
+    }
+  })
+}
 function insertData(query,callback){
-	var dataObject = {name:query.name,data:query.data};
+	var dataObject = {name:query.name,data:query.data,time:new Date().getTime()};
 	data.insert(dataObject,function(e,o){
 		if(!e){
 			callback(null,o); // send back null error and db object
