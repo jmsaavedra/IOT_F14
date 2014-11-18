@@ -25,7 +25,7 @@ var data;
 * ==============================================
 *
 */
-MongoClient.connect("mongodb://localhost:27017/mynewDB", function(err, db) {
+MongoClient.connect("mongodb://localhost:27017/myiotdb", function(err, db) {
   if(!err) {
 		// create our collections objects
 		users = db.collection("users");
@@ -68,7 +68,7 @@ app.get('/test', function(req, res) { //req = request (what came in)
 
 //input GET route for when we are SAVING DATA to our database
 app.get('/input', function(req,res){ // expecting:  localhost:8080/input?name=myName&data=myData
-  console.log(">> received /input query from URL: ".cyan + JSON.stringify(req.query));
+  console.log(">> received /input query from URL:  ".cyan + JSON.stringify(req.query));
 
 	insertData(req.query, function(error, data){ //returns error AND data that was just submitted
     if(!error){
@@ -85,7 +85,7 @@ app.get('/input', function(req,res){ // expecting:  localhost:8080/input?name=my
 
 //output GET route for when we are READING data from database
 app.get("/output",function(req,res){ // /output?name=myName
-	console.log(">> received /output query from URL: ".cyan+JSON.stringify(req.query));
+	console.log(">> received /output query from URL:! ".cyan+JSON.stringify(req.query));
 
   if(req.query.name != null){ //checking to see if a username was passed in by URL
 
