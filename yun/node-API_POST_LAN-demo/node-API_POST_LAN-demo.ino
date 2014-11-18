@@ -1,7 +1,6 @@
 /*
-Simple Node API POST tester
+Simple Node REST API POST tester
 
-go there to get the public and private keys needed to make this example work
 
  */
 
@@ -15,9 +14,6 @@ go there to get the public and private keys needed to make this example work
 //SERVERADDRESS is YOUR IP on your local network.
 // OR if you have a server on the cloud, it is the address/IP to that server
 #define SERVERADDRESS    "192.168.2.243:8080" //server address (port 8080)
-
-// read more about server ports: http://goo.gl/esYhI
-// list of standard port configurations: http://goo.gl/30BU
 
 //timer variables
 unsigned long postingInterval = 5000;  //delay between server updates
@@ -104,7 +100,10 @@ void updateData() {
   dataString = "name=sine";       // must match query that is expected by Node
   dataString += "&data=";         // must match query that is expected by Node
   dataString += sineVal;
-
+  //** building our query string here. it should look like: **//
+  //http://MY_IP_ADDRESS:8080/input?name=sine&data=104
+  
+  
 //  dataString += "&ramp=";     // must match name as setup on phant server
 //  dataString += rampVal;
 //  dataString += "&sensor1=";  // must match name as setup on phant server
@@ -115,10 +114,13 @@ void updateData() {
 void sendData() {
   // form the string for the API header parameter:
   // form the string for the URL parameter:
-//  String url = "http://data.sparkfun.com/input/"; //BOOOOO
-  String url = SERVERADDRESS;
+ 
+  String url = SERVERADDRESS; //start the URL with the server and port
   url +="/input?";   //because we're inputting data into the server
-  url += dataString; //finally add in our dataString
+  url += dataString; //finally add in our dataString that we built above
+  
+  /** this should finish as: **/
+  //http://MY_IP_ADDRESS:8080/input?name=sine&data=104
 
   // Send the server an HTTP GET request
   HttpClient client;
