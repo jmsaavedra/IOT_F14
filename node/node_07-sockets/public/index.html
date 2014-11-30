@@ -41,7 +41,7 @@
 			};
 			socket.emit('event', myData);
 
-			$( "#mouselog" ).append( "<div>" + msg + "</div>" );
+			$( '#mouselog' ).append( "<div>" + msg + "</div>" );
 			var len = $( "div" ).length;
 			if (len > 30) $( "#mouselog" ).html(''); //delete 30 oldest ones
 		});
