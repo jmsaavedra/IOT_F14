@@ -80,7 +80,7 @@ app.post('/input/text', urlencodedParser, function(req, res) {
       //emit to all of our netsocket (arduino) connections!
       netsocketConnections[i].write(req.body.mytext.toString());
     }
-    res.redirect('/');
+    res.redirect('/'); //this might need to change when you use AJAX on the frontend!!
   }
 });
 
