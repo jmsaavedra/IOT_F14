@@ -50,6 +50,7 @@ void loop() {
       //no connection, try to make one again:
       Console.println("\nattempting to connect to server");
       client.connect(SERVER_ADDRESS, SERVER_PORT);
+      delay(2000); //delay 2 seconds before trying another server reconnect
     } 
     lastPost = currTime;
   }
@@ -59,10 +60,9 @@ void loop() {
     //if(!serverResponded) Console.println(">>> Server Says : <<<"); //expecting something to be received
     char c = client.read();     //read this char
     if(isDigit(c)){
+      //Console.print("received digit!");
       LEDValue = String(c).toInt();
       digitalWrite(13, LEDValue);
-      Console.print("received digit!");
-      Console.println(c);
     }
     incomingDataString += c; //add this char to our dataString
     serverResponded = true; //regardless of data, we got a response
@@ -71,11 +71,8 @@ void loop() {
   if(serverResponded){
     Console.print("received from server: ");
     Console.println(incomingDataString);
-    //if(incomingDataString == "toggle") LEDValue = !LEDValue; //if you're looking for a string
     incomingDataString = ""; //clear out our data string for next server message
     serverResponded = false; //start this at false after server request
-    //if(incomingDataString == "1") digitalWrite(13, HIGH);
-    //else digitalWrite(13, LOW);
   }
 }
 

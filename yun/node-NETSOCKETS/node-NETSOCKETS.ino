@@ -50,6 +50,7 @@ void loop() {
       //no connection, try to make one again:
       Console.println("\nattempting to connect to server");
       client.connect(SERVER_ADDRESS, SERVER_PORT);
+      delay(2000); //delay 2 seconds before trying another server reconnect
     } 
     lastPost = currTime;
   }
@@ -61,8 +62,7 @@ void loop() {
     if(isDigit(c)){
       LEDValue = String(c).toInt();
       digitalWrite(13, LEDValue);
-      Console.print("received digit!");
-      Console.println(c);
+      //Console.print("received digit!");
     }
     incomingDataString += c; //add this char to our dataString
     serverResponded = true; //regardless of data, we got a response

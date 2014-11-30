@@ -18,6 +18,11 @@ var colors      = require('colors');
 var http        = require('http');
 var net         = require('net');
 var StringDecoder = require('string_decoder').StringDecoder;
+var util = require('util');
+var bodyParser = require('body-parser')
+// create application/x-www-form-urlencoded parser
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
+
 
 var port = 8080; //select a port for this server to run on
 var users;
@@ -62,6 +67,23 @@ app.use(express.static(__dirname+ '/public'));
 * - these are the HTTP /routes that we can hit
 *
 */
+
+app.post('/input/text', urlencodedParser, function(req, res) {
+  console.log("received from POST /input/text: ".green+JSON.stringify(req.body));
+  if (!req.body.mytext){
+    console.log("form input form is MISSING a 'mytext' field!!".red);
+    return res.sendStatus(400)
+  }
+  else {
+    console.log('Browser sent text: '.blue + req.body.mytext);
+    for(var i=0; i<netsocketConnections.length; i++){
+      //emit to all of our netsocket (arduino) connections!
+      netsocketConnections[i].write(req.body.mytext.toString());
+    }
+    res.redirect('/');
+  }
+});
+
 
 // sample route with a route the way we're used to seeing it
 app.get('/test', function(req, res) { //req = request (what came in)
@@ -140,52 +162,70 @@ var server = http.createServer(app).listen(port, function(){
 *
 */
 //arrays to hold our websocket and netsocket connections
-var socketIOConnections = []; //socketIO is a websocket library
-var netsocketConnections = []; //netsockets are part of Node
+var socketIOConnections = []; //socketIO is a websocket library - for browser connections
+var netsocketConnections = []; //netsockets are part of Node - for Arduino connections
 
 
-//*** set up socketIO connections ***
+//*** set up socketIO (browser websocket) connections ***
 var io = require('socket.io')(server);
 io.on('connection', function(websocket){
 
   socketIOConnections.push(websocket); //stick into our global array
+  console.log(">>> new websocket client connection made")
+  // console.log(util.inspect(websocket)); //whoa there!! whole bunch of info...
 
   websocket.on('event', function(data){
+    //do something with the data you just got?
     console.log("socket IO Event: ".cyan + JSON.stringify(data));
   });
 
   websocket.on('click', function(data){ //i made up "click" as an event (see index.html file!)
+    //do something with the data you just got?
+    //like emit this to all arduinos:
     for(var i=0; i<netsocketConnections.length; i++){
       //emit to all of our netsocket (arduino) connections!
       netsocketConnections[i].write(data.toString());
     }
+
+    //OR maybe also emit to all other browser connections:
+    // io.emit('event', data.toString());
     console.log("socket IO CLICK: ".green + JSON.stringify(data));
   });
 
   websocket.on('disconnect', function(data){
+    socketIOConnections = []; // wipe out our array, everyone will get re-added... TODO: much better ways to handle this...
     console.log("websocket DISCONNECTED: ".red+data.toString());
   })
 });
 
 
-//*** set up socketIO connections ***
+//*** set up NETSOCKET (arduino) connections ***
+// var netSocketEmitter = require('events').EventEmitter;
+var EventEmitter = require("events").EventEmitter;
+var netSocketEmitter = new EventEmitter();
 var netsocketServer = net.createServer( function (netsocket){
 
   netsocketConnections.push(netsocket); //stick into our global array
-
-  console.log("netsocket server connection made");
-
+  console.log(">>> new netsocket server connection made")
+  // console.log(util.inspect(netsocket)); //whoa there
   netsocket.on('data', function(data){
     console.log("netsocket EVENT: ".yellow+data);
-    for (var i=0; i<socketIOConnections.length; i++){
-      //emit to all of our websocket (socket IO browser) connections!
-      socketIOConnections[i].emit('event', data.toString());
-      console.log("sent data to socket IO connections");
-    }
+    //do something with the data you just got?
+    //like, emit this data to all of our websocket (socket IO browser) connections:
+    io.emit('event', data.toString()); //sends to all alive websocket (browser) connections!
+    //console.log("sent data to socket IO connections: "+data.toString());
+
+    //optionally iterate through all our connections in the array and send individually:
+    // for (var i=0; i<socketIOConnections.length; i++){
+    //   // socketIOConnections[i].emit('event', data.toString());
+    //   io.emit('event', data.toString());
+    //   console.log("sent data to socket IO connection");
+    // }
   })
 
   netsocket.on('end', function(){
-    console.log("netsocket disconnected");
+    netsocketConnections = []; //empty the array, everyone will get added back on their next connection
+    console.log("netsocket disconnected".red);
   });
 });
 
