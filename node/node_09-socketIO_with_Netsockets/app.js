@@ -67,7 +67,7 @@ app.use(express.static(__dirname+ '/public'));
 * - these are the HTTP /routes that we can hit
 *
 */
-
+//input POST route for the text field from our index.html
 app.post('/input/text', urlencodedParser, function(req, res) {
   console.log("received from POST /input/text: ".green+JSON.stringify(req.body));
   if (!req.body.mytext){
