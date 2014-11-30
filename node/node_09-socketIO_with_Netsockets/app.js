@@ -133,46 +133,58 @@ var server = http.createServer(app).listen(port, function(){
   console.log(listeningString.cyan.inverse);
 });
 
-var socketIOConnections = [];
 
+/****
+* START UP SOCKET SERVERS
+* ==============================================
+*
+*/
+//arrays to hold our websocket and netsocket connections
+var socketIOConnections = []; //socketIO is a websocket library
+var netsocketConnections = []; //netsockets are part of Node
+
+
+//*** set up socketIO connections ***
 var io = require('socket.io')(server);
-io.on('connection', function(socket){
+io.on('connection', function(websocket){
 
-  socketIOConnections.push(socket);
+  socketIOConnections.push(websocket); //stick into our global array
 
-  socket.on('event', function(data){
+  websocket.on('event', function(data){
     console.log("socket IO Event: ".cyan + JSON.stringify(data));
   });
 
-  socket.on('click', function(data){
+  websocket.on('click', function(data){ //i made up "click" as an event (see index.html file!)
     for(var i=0; i<netsocketConnections.length; i++){
+      //emit to all of our netsocket (arduino) connections!
       netsocketConnections[i].write(data.toString());
     }
     console.log("socket IO CLICK: ".green + JSON.stringify(data));
   });
 
-  socket.on('disconnect', function(data){
-    console.log("socket DISCONNECT".red);
+  websocket.on('disconnect', function(data){
+    console.log("websocket DISCONNECTED: ".red+data.toString());
   })
 });
 
-var netsocketConnections = [];
 
-var netsocketServer = net.createServer( function (socket){
+//*** set up socketIO connections ***
+var netsocketServer = net.createServer( function (netsocket){
 
-  netsocketConnections.push(socket);
+  netsocketConnections.push(netsocket); //stick into our global array
 
   console.log("netsocket server connection made");
 
-  socket.on('data', function(data){
+  netsocket.on('data', function(data){
     console.log("netsocket EVENT: ".yellow+data);
     for (var i=0; i<socketIOConnections.length; i++){
+      //emit to all of our websocket (socket IO browser) connections!
       socketIOConnections[i].emit('event', data.toString());
       console.log("sent data to socket IO connections");
     }
   })
 
-  socket.on('end', function(){
+  netsocket.on('end', function(){
     console.log("netsocket disconnected");
   });
 });
