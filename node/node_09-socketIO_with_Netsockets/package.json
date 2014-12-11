@@ -7,5 +7,12 @@
     "express": "^4.10.1",
     "mongodb": "^1.4.19",
     "socket.io": "^1.2.0"
+  },
+  "subdomain": "jmsaavedra-node_09-socketIO_with_Netsockets",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "engines": {
+    "node": "0.10.x"
   }
 }
